@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import * as auth from '../utils/auth'
 
-function Register({ history }) {
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState(''); 
+function Register({ history, email, setEmail, password, setPassword }) {
    
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
