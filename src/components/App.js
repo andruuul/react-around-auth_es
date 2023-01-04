@@ -9,6 +9,8 @@ import ImagePopup from './ImagePopup';
 import Login from './Login';
 import Register from './Register';
 //import { CurrentUserContext } from '../contexts/CurrentUserContext';
+import * as auth from '../utils/auth'
+
 
   
 function App() {
@@ -56,7 +58,20 @@ function App() {
     localStorage.removeItem('token');
     setLoggedIn(false);
     history.push('/signin');
+    window.location.reload(true);
   }
+
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    auth
+      .register(email, password)
+      .catch((err) => console.log(`erroooooor ${err}`))
+      .then((res) => {
+        history.push('/signin');
+        window.location.reload(true);
+        console.log(res)
+      })
+  };
 
   return (
     (
@@ -64,7 +79,13 @@ function App() {
         <div className="page">
           <Switch>
             <Route exact path='/signin'>
-              <Header />
+              <Header
+                email={email}
+                loggedIn={loggedIn}
+                onLogout={handleLogout}
+                linkDescription={'Sign in'}
+                linkTo={'/signup'}
+              />
               <Login
                 loggedIn={loggedIn}
                 email={email}
@@ -89,6 +110,7 @@ function App() {
                 setEmail={setEmail}
                 password={password}
                 setPassword={setPassword}
+                handleRegisterSubmit={handleRegisterSubmit}
               />
             </Route>
 

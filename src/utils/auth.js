@@ -35,7 +35,7 @@ export const authorize = (userid, password) => {
 }
   
 export const getContent = (token) => {
-  return fetch(`${this.options.baseUrl}/users/me`, {
+  return fetch(`${BASE_URL}/users/me`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

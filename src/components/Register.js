@@ -1,19 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import * as auth from '../utils/auth'
 
-function Register({ history, email, setEmail, password, setPassword }) {
+function Register({ history, email, setEmail, password, setPassword, handleRegisterSubmit }) {
    
-  const handleRegisterSubmit = (e) => {
-    e.preventDefault();
-    auth
-      .register(email, password)
-      .catch((err) => console.log(`erroooooor ${err}`))
-      .then((res) => {
-        history.push('/signin');
-        console.log(res)
-      })
-};
+
   
   //useEffect(() => {
   //  if (localStorage.getItem('token')) {
