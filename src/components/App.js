@@ -61,16 +61,45 @@ function App() {
     window.location.reload(true);
   }
 
-  const handleRegisterSubmit = (e) => {
+  function handleRegisterSubmit(e) {
     e.preventDefault();
     auth
       .register(email, password)
-      .catch((err) => console.log(`erroooooor ${err}`))
       .then((res) => {
-        history.push('/signin');
-        window.location.reload(true);
-        console.log(res)
+        if (res) {
+          console.log(res) //fine
+          history.push('/signin');
+        } else {
+          console.log('Something went wrong.');
+        }
       })
+      .catch((err) => console.log(`erroooooor ${err}`))
+  };
+
+  function handleLoginSubmit(e) {
+    e.preventDefault();
+    auth
+      .authorize(email, password)
+      .then((data) => {
+        if (data && data.token) {
+          handleLogin();
+        } else {
+          if (!email || !password) {
+            throw new Error(
+              '400 - no se ha proporcionado uno o más campos'
+            );
+          }
+          if (!data) {
+            throw new Error(
+              '401 - no se ha encontrado al usuario con el correo electrónico especificado'
+            );
+          }
+        }
+      })
+      .then(() => {
+        console.log("ACCESOOO")
+        history.push('/main')})
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -94,6 +123,7 @@ function App() {
                 setPassword={setPassword}
                 handleLogin={handleLogin}
                 onLogout={handleLogout}
+                handleLoginSubmit={handleLoginSubmit}
               />
             </Route>
 

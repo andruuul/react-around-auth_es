@@ -16,7 +16,6 @@ function Register({ history, email, setEmail, password, setPassword, handleRegis
       <div className='auth__container'>
         <h2 className='auth__title'>Sign up</h2>
         <form
-          action='#'
           className='auth'
           title='Sign up'
           onSubmit={handleRegisterSubmit}
@@ -28,7 +27,10 @@ function Register({ history, email, setEmail, password, setPassword, handleRegis
             type='email'
             required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              console.log(email)
+            }}
           />
           <input
             className='form__input_dark'
@@ -37,7 +39,8 @@ function Register({ history, email, setEmail, password, setPassword, handleRegis
             type='password'
             required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {setPassword(e.target.value)
+              console.log(password)}}
           />
           <button
             type='submit'

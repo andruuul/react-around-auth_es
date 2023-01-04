@@ -9,17 +9,21 @@ export const register = (email, password) => {
     },
     body: JSON.stringify({ email, password }),
   })
-  .then((res) => res.json())
+  .then((response) => {
+    return response.json();
+  })
+  .then((res) => {
+    return res;})
 }
   
-export const authorize = (userid, password) => {
+export const authorize = (email, password) => {
   return fetch(`${BASE_URL}/signin`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userid, password }),
+    body: JSON.stringify({ email, password }),
   })
   .then((res) => {
     return res.json();
@@ -29,7 +33,7 @@ export const authorize = (userid, password) => {
       localStorage.setItem('token', data.token);
       return data;
     } else {
-      return;
+      return
     }
   });
 }
