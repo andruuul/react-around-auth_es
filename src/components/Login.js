@@ -14,7 +14,6 @@ function Login({
       <div className='auth__container'>
         <h2 className='auth__title'>Log in</h2>
         <form
-          action='#'
           className='auth'
           title='Log in'
           onSubmit={handleLoginSubmit}
