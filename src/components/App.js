@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Switch, Redirect, useHistory, withRouter } from 'react-router-dom';
 import '../index.css'
 import Header from './Header';
@@ -8,19 +8,21 @@ import PopupWithForm from './PopupWithForm'
 import ImagePopup from './ImagePopup';
 import Login from './Login';
 import Register from './Register';
+import ProtectedRoute from './ProtectedRoute';
 //import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import * as auth from '../utils/auth'
 
 
+//Tengo dudas en la línea 164 y 171. Por favor, ayúdeme a resolverlas :( No puedo seguir avanzando sin resolverlas. El proyecto n oestá terminado aún.
+
   
 function App() {
 
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
-  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = useState(false);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = useState(false);
+  const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = useState(false);
   
-  const [selectedCard, setSelectedCard] = React.useState(null);
-//  const [currentUser, setCurrentUser] = useState({});
+  const [selectedCard, setSelectedCard] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,7 +60,6 @@ function App() {
     localStorage.removeItem('token');
     setLoggedIn(false);
     history.push('/signin');
-    window.location.reload(true);
   }
 
   function handleRegisterSubmit(e) {
@@ -97,24 +98,46 @@ function App() {
         }
       })
       .then(() => {
+        handleLogin()
         console.log("ACCESOOO")
-        history.push('/main')})
+        history.push('/main')
+      }
+        )
       .catch((err) => console.log(err));
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      auth
+        .getContent(token)
+        .then((res) => {
+          setLoggedIn(true)
+          setEmail(res.data.email);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } else {
+      console.log("no token")
+      setLoggedIn(false);
+    }
+  }, [loggedIn]);
 
   return (
     (
 //      <CurrentUserContext.Provider value={currentUser}>
         <div className="page">
-          <Switch>
+          <Header
+            email={email}
+            loggedIn={loggedIn}
+            onLogout={handleLogout}
+            linkDescription={window.location.pathname === '/signup' ? 'Log in' : 'Sign in'}
+            linkTo={window.location.pathname === '/signup' ? '/signin' : '/signup'}
+          />
+          <Switch loggedIn={loggedIn}>
             <Route exact path='/signin'>
-              <Header
-                email={email}
-                loggedIn={loggedIn}
-                onLogout={handleLogout}
-                linkDescription={'Sign in'}
-                linkTo={'/signup'}
-              />
               <Login
                 loggedIn={loggedIn}
                 email={email}
@@ -128,12 +151,6 @@ function App() {
             </Route>
 
             <Route exact path='/signup'>
-              <Header
-                email={email}
-                loggedIn={loggedIn}
-                linkDescription={'Log in'}
-                linkTo={'/signin'}
-              />
               <Register
                 history={history}
                 email={email}
@@ -144,48 +161,70 @@ function App() {
               />
             </Route>
 
-            <Route exact path='/'>
-              {loggedIn ? <Redirect to='/main' /> : <Redirect to='/signin' />}
+            <Route exact path='/' /*En la línea de abajo ,tampoco me permite acceder al valor de loggedIn y siempre lo registra como falso. ¿Podría ayudarme a solucionar esto?*/ > 
+              {loggedIn ? <Redirect to='/main' /> : <Redirect to='/ee' />}
             </Route>
 
-            <Main 
+            <ProtectedRoute 
+              path='/main' 
+              component={Main}
+              loggedIn={loggedIn} //No sé por qué aquí no me permite pasar el loggedIn, como si fuera "false"
               onEditAvatarClick={handleEditAvatarClick}
               onAddPlaceClick={handleAddPlaceClick}
               onEditProfileClick={handleEditProfileClick}
               onCardClick={handleCardClick}
             />
-            <Footer />
-            <PopupWithForm title="Edit Profile" name="profile" buttonText="Save"
+          </Switch>
+
+          <Footer />
+
+          <PopupWithForm 
+            title="Edit Profile" 
+            name="profile" 
+            buttonText="Save"
             isOpen={isEditProfilePopupOpen}
             onClose={closeAllPopups}>
               <input className="popup__input" type="text" placeholder="Title" required minLength={2} maxLength={30} name="name" />
               <span className="popup__input-error inputNewPlaceTitle-input-error"></span>
               <input className="popup__input" type="url" placeholder="Image's URL" required name="link" />
               <span className="popup__input-error popup__input-error-lower inputNewPlaceURL-input-error"></span>
-            </PopupWithForm>
-    
-            <PopupWithForm title="New Place" name="new-place" buttonText="Add"
+          </PopupWithForm>
+  
+          <PopupWithForm 
+            title="New Place" 
+            name="new-place" 
+            buttonText="Add"
             isOpen={isAddPlacePopupOpen}
             onClose={closeAllPopups}>
               <input className="popup__input" type="text" placeholder="Title" required minLength={2} maxLength={30} name="name" />
               <span className="popup__input-error inputNewPlaceTitle-input-error"></span>
               <input className="popup__input" type="url" placeholder="Image's URL" required name="link" />
               <span className="popup__input-error popup__input-error-lower inputNewPlaceURL-input-error"></span>
-            </PopupWithForm>
-    
-            <PopupWithForm title="Change profile picture" name="avatar" buttonText="Change"
+          </PopupWithForm>
+  
+          <PopupWithForm 
+            title="Change profile picture" 
+            name="avatar" 
+            buttonText="Change"
             isOpen={isEditAvatarPopupOpen}
             onClose={closeAllPopups}>
               <input className="popup__input" type="url" placeholder="Image's URL" required name="link" />
               <span className="popup__input-error inputAvatar-input-error"></span>
-            </PopupWithForm>
-    
-            <PopupWithForm title="Are you sure?" name="confirmation" buttonText="Yes"
+          </PopupWithForm>
+  
+          <PopupWithForm 
+            title="Are you sure?" 
+            name="confirmation" 
+            buttonText="Yes"
             /*isOpen=""*/
-            onClose={closeAllPopups}/>
-    
-            <ImagePopup selectedCard={selectedCard} onClose={closeAllPopups} />
-          </Switch>
+            onClose={closeAllPopups}
+          />
+  
+          <ImagePopup 
+            selectedCard={selectedCard} 
+            onClose={closeAllPopups} 
+          />
+
         </div>
       //</CurrentUserContext.Provider>
     )

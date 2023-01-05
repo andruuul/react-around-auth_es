@@ -8,13 +8,11 @@ function Header({ linkTo, linkDescription, onLogout, email, loggedIn }) {
     <header className='header'>
       <img className='header__logo' src={logoPath} alt='Around the U.S.' />
       <p className='header__email'>{loggedIn ? email : ''}</p>
-      <Link
-        to={linkTo}
-        className='header__link'
-        onClick={onLogout ? onLogout : null}
-      >
+      {!loggedIn ? <Link to={linkTo} className='header__link'>
         {linkDescription}
-      </Link>
+      </Link> : <Link to={linkTo} className='header__link' onClick={onLogout}>
+        Logout
+      </Link>}
     </header>
   </>
   );
