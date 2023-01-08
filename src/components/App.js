@@ -140,7 +140,7 @@ function App() {
         handleToolTip('success');
         return res;
       })
-      .catch((err) => console.log(`erroooooor ${err}`))
+      .catch((err) => console.log(`${err}`))
   };
 
   function handleLogin() {
@@ -197,10 +197,6 @@ function App() {
     }
   }, [loggedIn, email]);
 
-  //function handleLinkClick() {
-  //  window.location.reload()
-  //}
-
   return (
     (
     <div className="page">
@@ -211,7 +207,7 @@ function App() {
         linkDescription={location.pathname === '/signup' ? 'Log in' : 'Sign in'}
         linkTo={location.pathname === '/signup' ? '/signin' : '/signup'}
       />
-        <CurrentUserContext.Provider value={currentUser}>  {/*Gracias por la nota, pero prefiero dejarlo así porque en la plataforma y las instrucciones del proyecto así lo piden. Definitivamente lo tnedré en cuenta para el futuro!! Mil gracias!!  */}
+        <CurrentUserContext.Provider value={currentUser}>
           <Switch>
             <ProtectedRoute path='/main' loggedIn={loggedIn} component={Main} onEditAvatarClick={handleEditAvatarClick} onAddPlaceClick={handleAddPlaceClick} onEditProfileClick={handleEditProfileClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
             <Route exact path='/signup'>

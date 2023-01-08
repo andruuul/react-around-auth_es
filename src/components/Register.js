@@ -19,10 +19,7 @@ function Register({ email, setEmail, password, setPassword, handleRegisterSubmit
             type='email'
             required
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              console.log(email)
-            }}
+            onChange={(e) => {setEmail(e.target.value);}}
           />
           <input
             className='form__input_dark'
@@ -31,8 +28,7 @@ function Register({ email, setEmail, password, setPassword, handleRegisterSubmit
             type='password'
             required
             value={password}
-            onChange={(e) => {setPassword(e.target.value)
-              console.log(password)}}
+            onChange={(e) => {setPassword(e.target.value)}}
           />
           <button
             type='submit'
