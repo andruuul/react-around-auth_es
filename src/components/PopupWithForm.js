@@ -1,6 +1,6 @@
 import React from 'react';
 
-function PopupWithForm({isOpen, onClose, name, title, buttonText, children}) { 
+function PopupWithForm({isOpen, onClose, name, title, buttonText, children, onSubmit}) { 
   //En serio gracias, aprendo más de ti que de nadie jajaja te agradezco porque me haces sentir que puedo y que estoy avanzando!!!
   return (
     <>
@@ -9,9 +9,9 @@ function PopupWithForm({isOpen, onClose, name, title, buttonText, children}) {
           <button className="popup__close-button" onClick={onClose}></button>
           <p className="popup__title">{title}</p>
         </div>
-        <form className="popup__form" name={`${name}-form`}>
+        <form className="popup__form" onSubmit={onSubmit} name={`${name}-form`}>
           {children}
-          <button className="popup__save-button popup__save-button_inactive" type="submit">{buttonText}</button>
+          <button className="popup__save-button" type="submit">{buttonText}</button>
         </form>
       </div>
       <div className={`overlay_hidden ${isOpen ? 'overlay_active' : ''}`} onClick={onClose}>

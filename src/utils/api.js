@@ -1,4 +1,4 @@
-export default class Api {
+export class Api {
   constructor({baseUrl, headers}) {
     this._baseUrl = baseUrl;
     this._headers = headers;
@@ -6,10 +6,10 @@ export default class Api {
   }
 
   _request(url, options) {
-    return fetch(url, options).then(this._checkResponse)
+    return fetch(url, options).then(this._checkResponse) //Aquí está vinculado el checkResponse que confirma el res.ok 
   }
 
-  _checkResponse(res) { 
+  _checkResponse(res) { //Aquí se checa y si está bien, continúa
     if (res.ok) {
       return res.json();
     }
@@ -28,13 +28,13 @@ export default class Api {
     })
   }
 
-  editProfile(name, job) {
+  editProfile(name, about) {
     return this._request(`${this._baseUrl}/users/me`, {
       method: "PATCH",
       headers: this._headers,
       body: JSON.stringify({
         name: name,
-        about: job
+        about: about,
       })
     })
   }
@@ -56,20 +56,6 @@ export default class Api {
       headers: this._headers
     })
   }
-  
-  addCardLike(cardId) {
-    return this._request(`${this._baseUrl}/cards/likes/${cardId}`, {
-      method: "PUT",
-      headers: this._headers
-    })
-  }
-
-  deleteCardLike(cardId) {
-    return this._request(`${this._baseUrl}/cards/likes/${cardId}`, {
-      method: "DELETE",
-      headers: this._headers
-    })
-  }
 
   changeAvatar(link) {
     return this._request(`${this._baseUrl}/users/me/avatar`, {
@@ -81,12 +67,28 @@ export default class Api {
     })
   }
 
+  changeLikeCardStatus(cardId, isLiked){
+    if(isLiked) {
+      return this._request(`${this._baseUrl}/cards/likes/${cardId}`, {
+        method: "DELETE",
+        headers: this._headers
+      })
+    } else {
+      return this._request(`${this._baseUrl}/cards/likes/${cardId}`, {
+        method: "PUT",
+        headers: this._headers
+      })
+    }
+  }
+
 }
 
-export const api = new Api({
+const api = new Api({
   baseUrl: "https://around.nomoreparties.co/v1/web_es_cohort_02",
   headers: {
     authorization: "c0a099b3-69e1-4897-8731-fc3bd1c460e5",
     "Content-Type": "application/json"
   }
 });
+
+export default api 

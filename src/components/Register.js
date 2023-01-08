@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function Register({ history, email, setEmail, password, setPassword, handleRegisterSubmit }) {
+function Register({ email, setEmail, password, setPassword, handleRegisterSubmit }) {
    
   return (
     <>

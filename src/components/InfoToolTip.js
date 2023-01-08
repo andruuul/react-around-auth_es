@@ -1,9 +1,6 @@
 import React from 'react';
 
 function InfoToolTip(props) {
-  // const message = props.success
-  //   ? 'Success! You have now been registered.'
-  //   : 'Oops, something went wrong! Please try again.';
 
   return (
     <section
@@ -20,7 +17,6 @@ function InfoToolTip(props) {
           }`}
         />
         <p className='form__tooltip-message'>
-          {/* {message} */}
           {props.success === 'success'
             ? 'Success! You have now been registered.'
             : 'Oops, something went wrong! Please try again.'}
