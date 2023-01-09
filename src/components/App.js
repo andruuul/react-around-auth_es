@@ -19,20 +19,19 @@ import * as auth from '../utils/auth'
   
 function App() {
 
+
+
   const history = useHistory()
   const location = useLocation()
 
   const [currentUser, setCurrentUser] = useState({})
-  useEffect(() => {
-    api
-      .getProfileInfo()
-      .then(res => setCurrentUser(res))
-      .catch(err => console.log(err));
-    }, [])
+
+
   const [selectedCard, setSelectedCard] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  
   const [tooltipMode, setTooltipMode] = useState(false);
 
 
@@ -140,8 +139,16 @@ function App() {
         handleToolTip('success');
         return res;
       })
-      .catch((err) => console.log(`${err}`))
+      .catch((err) => console.log(err))
   };
+
+  useEffect(() => {
+    if(loggedIn) {
+      api
+      .getProfileInfo()
+      .then(res => setCurrentUser(res))
+      .catch(err => console.log(err));}
+    }, [loggedIn])
 
   function handleLogin() {
     setLoggedIn(true);
@@ -150,55 +157,56 @@ function App() {
   function handleLogout() {
     localStorage.removeItem('token');
     setLoggedIn(false);
-    history.push('/signin');
-    history.go();
+    history.go()
   }
 
   function handleLoginSubmit(e) {
     e.preventDefault();
     auth
       .authorize(email, password)
-      .then((data) => {
-        if (data && data.token) {
+      .then((user) => {
+        if (user && user.token) {
           handleLogin();
+          console.log(user)
         } else {
           if (!email || !password) {
             throw new Error(
               '400 - no se ha proporcionado uno o más campos'
             );
           }
-          if (!data) {
+          if (!user) {
             throw new Error(
               '401 - no se ha encontrado al usuario con el correo electrónico especificado'
             );
           }
         }
       })
-      .then(() => {
-        history.push('/main');
+      .then(() => { 
+        history.push('/main') 
         history.go()
       })
       .catch((err) => console.log(err));
   };
-  
+
   useEffect(() => {
     const token = localStorage.getItem('token');
-
     if (token) {
+      console.log("se repite")
       auth
         .getContent(token)
         .then((res) => {
-          handleLogin();
+          setLoggedIn(true);
           setEmail(res.data.email);
         })
         .catch((err) => {console.log(err);});
     } else {
-      setLoggedIn(false);
+      return
     }
-  }, [loggedIn, email]);
+  }, [loggedIn]);
 
   return (
     (
+    <CurrentUserContext.Provider value={currentUser}>
     <div className="page">
       <Header
         email={email}
@@ -206,35 +214,52 @@ function App() {
         onLogout={handleLogout}
         linkDescription={location.pathname === '/signup' ? 'Log in' : 'Sign in'}
         linkTo={location.pathname === '/signup' ? '/signin' : '/signup'}
+        history={history}
       />
-        <CurrentUserContext.Provider value={currentUser}>
-          <Switch>
-            <ProtectedRoute path='/main' loggedIn={loggedIn} component={Main} onEditAvatarClick={handleEditAvatarClick} onAddPlaceClick={handleAddPlaceClick} onEditProfileClick={handleEditProfileClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
-            <Route exact path='/signup'>
-              <h1 onClick={handleRegisterSubmit}>hola</h1>
-                <Register
-                  email={email}
-                  setEmail={setEmail}
-                  password={password}
-                  setPassword={setPassword}
-                  handleRegisterSubmit={handleRegisterSubmit}
-                />
-            </Route>
-            <Route exact path='/signin'>
+      <Switch>
+        <ProtectedRoute path='/main' loggedIn={loggedIn} component={Main} onEditAvatarClick={handleEditAvatarClick} onAddPlaceClick={handleAddPlaceClick} onEditProfileClick={handleEditProfileClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />       
+        <Route
+          exact
+          path='/signup'
+          render={() =>
+            loggedIn ? (
+              <Redirect to='/main' />
+            ) : (
+              <Register
+                email={email}
+                password={password}
+                setPassword={setPassword}
+                handleRegisterSubmit={handleRegisterSubmit}
+                setEmail={setEmail}
+              />
+            )
+          }
+        />
+        <Route
+          exact
+          path='/signin'
+          render={() =>
+            loggedIn ? (
+              <Redirect to='/main' />
+            ) : (
               <Login
                 email={email}
-                setEmail={setEmail}
                 password={password}
                 setPassword={setPassword}
                 handleLoginSubmit={handleLoginSubmit}
+                setEmail={setEmail}
               />
-            </Route>
-            <Route exact path='/' loggedIn={loggedIn}>
-              {loggedIn ? <Redirect to='/main' /> : <Redirect to='/signin' />}
-            </Route>
-            <Redirect from='*' to='/main' />
-          </Switch>
-        </CurrentUserContext.Provider>
+            )
+          }
+        />
+        <Route exact path='/'>
+          <Redirect to='/main' />
+        </Route>
+        <Route path='*'>
+          <h1 style={{color: "white"}}>Error 404: Page not found</h1>
+        </Route>
+      </Switch>
+        
         
       
 
@@ -259,6 +284,7 @@ function App() {
 
       <ImagePopup selectedCard={selectedCard} onClose={closeAllPopups} />
     </div>
+    </CurrentUserContext.Provider>
     )
   );
 }
