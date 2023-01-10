@@ -1,5 +1,12 @@
 const BASE_URL = 'https://register.nomoreparties.co';
 
+export const checkStatus = (res) => {
+  if (res.ok) {
+    return res.json();
+  }
+  return Promise.reject(`Something went wrong: ${res.status}`);
+};
+
 export const register = (email, password) => {
   return fetch(`${BASE_URL}/signup`, {
     method: 'POST',
@@ -9,11 +16,7 @@ export const register = (email, password) => {
     },
     body: JSON.stringify({ email, password }),
   })
-  .then((response) => {
-    return response.json();
-  })
-  .then((res) => {
-    return res;})
+  .then((res) => checkStatus(res));
 }
   
 export const authorize = (email, password) => {
@@ -25,9 +28,7 @@ export const authorize = (email, password) => {
     },
     body: JSON.stringify({ email, password }),
   })
-  .then((res) => {
-    return res.json();
-  })
+  .then((res) => checkStatus(res))
   .then((data) => {
     if (data.token) {
       localStorage.setItem('token', data.token);
@@ -38,18 +39,13 @@ export const authorize = (email, password) => {
   });
 }
   
-export const getContent = (token) => {
+export const checkToken = (token) => {
   return fetch(`${BASE_URL}/users/me`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-  }).then(async (res) => {
-    if (res.ok) {
-      return res.json();
-    }
-    const body = await res.json();
-    return Promise.reject(body.error || body.message);
-  });
+  })
+  .then((res) => checkStatus(res));
 }

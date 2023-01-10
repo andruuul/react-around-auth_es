@@ -18,21 +18,17 @@ import { AddPlacePopup } from './AddPlacePopup';
 import * as auth from '../utils/auth'
   
 function App() {
-
   const history = useHistory()
   const location = useLocation()
 
   const [currentUser, setCurrentUser] = useState({})
-  useEffect(() => {
-    api
-      .getProfileInfo()
-      .then(res => setCurrentUser(res))
-      .catch(err => console.log(err));
-    }, [])
+
+
   const [selectedCard, setSelectedCard] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loggedIn, setLoggedIn] = useState(false);
+  
   const [tooltipMode, setTooltipMode] = useState(false);
 
 
@@ -118,30 +114,54 @@ function App() {
       .then(closeAllPopups)
   }
 
+  function resetForm() {
+    setEmail('');
+    setPassword('');
+  };
+
   function handleRegisterSubmit(e) {
     e.preventDefault();
     auth
       .register(email, password)
       .then((res) => {
-        if (!res.data) {
-          handleToolTip('error');
-          throw new Error(`400 - ${res.message ? res.message : res.error}`);
-        }
-      })
-      .then((res) => {
         if (res) {
-          history.push('/signin');
-          history.go();
-        } else {
-          console.log('Something went wrong.');
+          handleToolTip('success');
+          setTimeout(() => {
+            history.push('/signin');
+            history.go()
+          }, "1500")
+        } else if (!res.data) {
+          throw new Error(`400 - ${res.message ? res.message : res.error}`)
         }
       })
-      .then((res) => {
-        handleToolTip('success');
-        return res;
+      .catch((err) => {
+        handleToolTip('error'); 
+        console.log(err)
+        resetForm()
       })
-      .catch((err) => console.log(`${err}`))
   };
+
+
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if(token) {
+      auth
+        .checkToken(token)
+        .then((data) => {
+          setEmail(data.data.email);
+          setLoggedIn(true);
+          history.push("/main");
+        })
+        .catch((err) => {
+          if (err === 401) {
+            return console.log("Wrong token");
+          }
+        });
+      api
+        .getProfileInfo()
+        .then(res => setCurrentUser(res))
+        .catch(err => console.log(err));}
+    }, [loggedIn, history])
 
   function handleLogin() {
     setLoggedIn(true);
@@ -150,16 +170,16 @@ function App() {
   function handleLogout() {
     localStorage.removeItem('token');
     setLoggedIn(false);
-    history.push('/signin');
-    history.go();
+    history.push('/signin'); 
+    history.go()
   }
 
   function handleLoginSubmit(e) {
     e.preventDefault();
     auth
       .authorize(email, password)
-      .then((data) => {
-        if (data && data.token) {
+      .then((user) => {
+        if (user && user.token) {
           handleLogin();
         } else {
           if (!email || !password) {
@@ -167,76 +187,76 @@ function App() {
               '400 - no se ha proporcionado uno o más campos'
             );
           }
-          if (!data) {
+          if (!user) {
             throw new Error(
               '401 - no se ha encontrado al usuario con el correo electrónico especificado'
             );
           }
         }
       })
-      .then(() => {
-        history.push('/main');
-        history.go()
-      })
+      .then(() => {history.push('/main'); history.go()})
       .catch((err) => console.log(err));
   };
-  
-  useEffect(() => {
-    const token = localStorage.getItem('token');
 
-    if (token) {
-      auth
-        .getContent(token)
-        .then((res) => {
-          handleLogin();
-          setEmail(res.data.email);
-        })
-        .catch((err) => {console.log(err);});
-    } else {
-      setLoggedIn(false);
+  function redirect() {
+    if(localStorage.getItem('token')) {
+      history.push('/main');
+    } else { 
+      history.push('/signin');  
     }
-  }, [loggedIn, email]);
+  } 
 
   return (
     (
+    <CurrentUserContext.Provider value={currentUser}>
     <div className="page">
       <Header
         email={email}
-        loggedIn={loggedIn}
         onLogout={handleLogout}
-        linkDescription={location.pathname === '/signup' ? 'Log in' : 'Sign in'}
+        linkDescription={location.pathname === '/signup' ? 'Log in' : 'Sign up'}
         linkTo={location.pathname === '/signup' ? '/signin' : '/signup'}
+        history={history}
       />
-        <CurrentUserContext.Provider value={currentUser}>
-          <Switch>
-            <ProtectedRoute path='/main' loggedIn={loggedIn} component={Main} onEditAvatarClick={handleEditAvatarClick} onAddPlaceClick={handleAddPlaceClick} onEditProfileClick={handleEditProfileClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />
-            <Route exact path='/signup'>
-              <h1 onClick={handleRegisterSubmit}>hola</h1>
-                <Register
-                  email={email}
-                  setEmail={setEmail}
-                  password={password}
-                  setPassword={setPassword}
-                  handleRegisterSubmit={handleRegisterSubmit}
-                />
-            </Route>
-            <Route exact path='/signin'>
-              <Login
+      <Switch>
+        <ProtectedRoute exact path='/main' component={Main} onEditAvatarClick={handleEditAvatarClick} onAddPlaceClick={handleAddPlaceClick} onEditProfileClick={handleEditProfileClick} onCardClick={handleCardClick} cards={cards} onCardLike={handleCardLike} onCardDelete={handleCardDelete} />       
+        <Route
+          exact
+          path='/signup'
+          render={() =>
+            localStorage.getItem('token') ? (
+              <Redirect to='/main' />
+            ) : (
+              <Register
                 email={email}
+                password={password}
+                setPassword={setPassword}
+                handleRegisterSubmit={handleRegisterSubmit}
                 setEmail={setEmail}
+              />
+            )
+          }
+        />
+        <Route
+          exact
+          path='/signin'
+          render={() =>
+            localStorage.getItem('token') ? (
+              <Redirect to='/main' />
+            ) : (
+              <Login
+                loggedIn={loggedIn}
+                email={email}
                 password={password}
                 setPassword={setPassword}
                 handleLoginSubmit={handleLoginSubmit}
+                setEmail={setEmail} 
               />
-            </Route>
-            <Route exact path='/' loggedIn={loggedIn}>
-              {loggedIn ? <Redirect to='/main' /> : <Redirect to='/signin' />}
-            </Route>
-            <Redirect from='*' to='/main' />
-          </Switch>
-        </CurrentUserContext.Provider>
-        
-      
+            )
+          }
+        />
+        <Route exact path='/' render={redirect} />
+        <Route path='*' render={redirect} />
+      </Switch>
 
       <Footer />
 
@@ -247,11 +267,11 @@ function App() {
       <AddPlacePopup isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} onAddPlaceSubmit={handleAddPlaceSubmit} />
 
       <InfoToolTip
-            isOpen={isInfoToolTipOpen}
-            success={tooltipMode}
-            onClose={closeAllPopups}
-            loggedIn={loggedIn}
-          />
+        isOpen={isInfoToolTipOpen}
+        success={tooltipMode}
+        onClose={closeAllPopups}
+        loggedIn={loggedIn}
+      />
 
       <PopupWithForm title="Are you sure?" name="confirmation" buttonText="Yes"
       /*isOpen=""*/
@@ -259,6 +279,7 @@ function App() {
 
       <ImagePopup selectedCard={selectedCard} onClose={closeAllPopups} />
     </div>
+    </CurrentUserContext.Provider>
     )
   );
 }

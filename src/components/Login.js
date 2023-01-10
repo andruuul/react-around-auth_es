@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 function Login({
     email,
@@ -43,9 +42,9 @@ function Login({
             Log in
           </button>
         </form>
-        <Link className='auth__link' to='/signup'>
+        <a href='/signup' className='auth__link'>
           Not a member yet? Sign up here!
-        </Link>
+        </a>
       </div>
     </>
   );

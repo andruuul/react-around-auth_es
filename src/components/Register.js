@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 function Register({ email, setEmail, password, setPassword, handleRegisterSubmit }) {
    
@@ -19,7 +18,7 @@ function Register({ email, setEmail, password, setPassword, handleRegisterSubmit
             type='email'
             required
             value={email}
-            onChange={(e) => {setEmail(e.target.value);}}
+            onChange={(e) => {console.log(email); setEmail(e.target.value);}}
           />
           <input
             className='form__input_dark'
@@ -28,20 +27,19 @@ function Register({ email, setEmail, password, setPassword, handleRegisterSubmit
             type='password'
             required
             value={password}
-            onChange={(e) => {setPassword(e.target.value)}}
+            onChange={(e) => {console.log(password); setPassword(e.target.value)}}
           />
           <button
             type='submit'
             className='form__submit-button_dark'
             onSubmit={handleRegisterSubmit}
-            to='/main'
           >
             Sign up
           </button>
         </form>
-        <Link className='auth__link' to='/signin'>
+        <a href='/signin' className='auth__link'>
           Already a member? Log in here!
-        </Link>
+        </a>
       </div>
     </>
   );
