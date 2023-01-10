@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import logoPath from '../images/logo.svg'
 
-function Header({ linkTo, linkDescription, onLogout, email, loggedIn, history }) {
+function Header({ linkTo, linkDescription, onLogout, email }) {
   const token = localStorage.getItem('token')
 
   return (
