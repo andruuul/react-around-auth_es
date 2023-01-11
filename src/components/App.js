@@ -141,6 +141,12 @@ function App() {
       })
   };
 
+  useEffect(() => {
+    api
+        .getProfileInfo()
+        .then(res => setCurrentUser(res))
+        .catch(err => console.log(err));
+  }, [])
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -149,7 +155,7 @@ function App() {
         .checkToken(token)
         .then((data) => {
           setEmail(data.data.email);
-          setLoggedIn(true);
+          handleLogin();
           history.push("/main");
         })
         .catch((err) => {
@@ -157,10 +163,7 @@ function App() {
             return console.log("Wrong token");
           }
         });
-      api
-        .getProfileInfo()
-        .then(res => setCurrentUser(res))
-        .catch(err => console.log(err));}
+      }
     }, [loggedIn, history])
 
   function handleLogin() {

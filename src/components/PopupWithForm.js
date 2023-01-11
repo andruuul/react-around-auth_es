@@ -1,7 +1,6 @@
 import React from 'react';
 
 function PopupWithForm({isOpen, onClose, name, title, buttonText, children, onSubmit}) { 
-  //En serio gracias, aprendo más de ti que de nadie jajaja te agradezco porque me haces sentir que puedo y que estoy avanzando!!!
   return (
     <>
       <div className={`popup ${name}-popup ${isOpen ? 'popup_is-opened' : ''}`}>
